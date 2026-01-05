@@ -2,255 +2,287 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart School Dashboard - Premium UI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>School Mobile App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <style>
-        .section { display: none; }
-        .section.active { display: block; animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
         
-        /* Mobile vs PC Sidebars */
-        @media (max-width: 768px) {
-            .pc-sidebar { display: none; }
-            .mobile-nav { display: flex; }
-            .main-content { padding-bottom: 80px; }
-        }
-        @media (min-width: 769px) {
-            .mobile-nav { display: none; }
-            .pc-sidebar { display: flex; }
+        body { 
+            font-family: 'Hind Siliguri', sans-serif; 
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
 
-        .sidebar-link.active { background: #fbbf24; color: #1e3a8a; border-radius: 12px; font-weight: bold; }
+        /* Mobile Container: PC-তে দেখলেও মোবাইলের মতো দেখাবে */
+        .app-container {
+            width: 100%;
+            max-width: 450px; /* Mobile Width */
+            height: 100vh;
+            background: #f9fafb;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
+        }
+
+        #welcome-screen {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, #1e40af 0%, #3b82f6 100%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .section { display: none; height: 100%; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .nav-btn.active { color: #2563eb; }
+        .nav-btn.active i { transform: translateY(-5px); color: #2563eb; }
+        
         .admin-controls { display: none; }
-        #calendar-el { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        
+        /* Custom Scrollbar for mobile feel */
+        .section::-webkit-scrollbar { width: 0px; }
+        
+        .routine-card { background: white; border-radius: 20px; border: 1px solid #eee; overflow-x: auto; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 flex h-screen overflow-hidden">
+<body>
 
-    <aside class="pc-sidebar w-72 bg-blue-900 text-white flex flex-col p-6 shadow-2xl">
-        <div class="text-center mb-10">
-            <h1 class="text-2xl font-black text-yellow-400 tracking-tighter uppercase italic">Smart School</h1>
-            <p class="text-xs text-blue-300">Digital Campus System</p>
-        </div>
-        <nav class="flex-1 space-y-2">
-            <a href="javascript:void(0)" onclick="showSection('event-feed', this)" class="sidebar-link active flex items-center p-4 transition-all">
-                <i class="fas fa-home w-8"></i> ড্যাশবোর্ড
-            </a>
-            <a href="javascript:void(0)" onclick="showSection('notice', this)" class="sidebar-link flex items-center p-4 transition-all">
-                <i class="fas fa-bullhorn w-8"></i> নোটিশ বোর্ড
-            </a>
-            <a href="javascript:void(0)" onclick="showSection('routine', this)" class="sidebar-link flex items-center p-4 transition-all">
-                <i class="fas fa-clock w-8"></i> রুটিন
-            </a>
-            <a href="javascript:void(0)" onclick="showSection('syllabus', this)" class="sidebar-link flex items-center p-4 transition-all">
-                <i class="fas fa-book w-8"></i> সিলেবাস
-            </a>
-            <a href="javascript:void(0)" onclick="showSection('calendar-sec', this)" class="sidebar-link flex items-center p-4 transition-all">
-                <i class="fas fa-calendar-alt w-8"></i> ক্যালেন্ডার
-            </a>
-            <a href="javascript:void(0)" onclick="showSection('info', this)" class="sidebar-link flex items-center p-4 transition-all">
-                <i class="fas fa-user-tie w-8"></i> শিক্ষক
-            </a>
-        </nav>
-        <button onclick="toggleAdminMode()" id="adminBtn" class="bg-red-500 hover:bg-red-600 p-3 rounded-xl font-bold transition-all shadow-lg">
-            <i class="fas fa-lock mr-2"></i> Admin Login
-        </button>
-    </aside>
-
-    <nav class="mobile-nav fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 flex justify-around p-2 shadow-inner">
-        <button onclick="showSection('event-feed')" class="flex flex-col items-center text-blue-900"><i class="fas fa-home text-xl"></i><span class="text-[10px]">হোম</span></button>
-        <button onclick="showSection('notice')" class="flex flex-col items-center text-gray-500"><i class="fas fa-bullhorn text-xl"></i><span class="text-[10px]">নোটিশ</span></button>
-        <button onclick="showSection('routine')" class="flex flex-col items-center text-gray-500"><i class="fas fa-clock text-xl"></i><span class="text-[10px]">রুটিন</span></button>
-        <button onclick="showSection('syllabus')" class="flex flex-col items-center text-gray-500"><i class="fas fa-book text-xl"></i><span class="text-[10px]">সিলেবাস</span></button>
-        <button onclick="showSection('calendar-sec')" class="flex flex-col items-center text-gray-500"><i class="fas fa-calendar text-xl"></i><span class="text-[10px]">ক্যালেন্ডার</span></button>
-    </nav>
-
-    <main class="main-content flex-1 overflow-y-auto p-4 md:p-10">
+    <div class="app-container">
         
-        <header class="md:hidden flex justify-between items-center mb-6">
-            <h1 class="text-xl font-bold text-blue-900">Digital School</h1>
-            <button onclick="toggleAdminMode()" class="bg-red-500 text-white px-3 py-1 rounded-lg text-xs">Admin</button>
+        <div id="welcome-screen">
+            <div class="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center mb-6 animate-bounce">
+                <i class="fas fa-graduation-cap text-5xl text-white"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-white tracking-tight">স্মার্ট স্কুল</h1>
+            <p class="text-blue-100 mt-2 text-sm opacity-80 uppercase tracking-widest">Digital Learning Hub</p>
+        </div>
+
+        <header class="bg-white px-6 py-5 flex justify-between items-center shadow-sm z-50">
+            <div>
+                <h1 class="text-xl font-bold text-blue-900 leading-none">স্বাগতম!</h1>
+                <p class="text-[10px] text-gray-400 font-bold mt-1 uppercase">Today: Jan 2026</p>
+            </div>
+            <button onclick="toggleAdminMode()" id="adminBtn" class="bg-gray-50 w-10 h-10 rounded-xl flex items-center justify-center text-gray-400">
+                <i class="fas fa-shield-alt text-sm"></i>
+            </button>
         </header>
 
-        <section id="event-feed" class="section active">
-            <h2 class="text-2xl md:text-3xl font-bold text-blue-900 mb-6">✨ আজকের ইভেন্ট</h2>
-            <div id="today-msg-container"></div>
-        </section>
+        <main class="flex-1 overflow-hidden relative">
+            
+            <section id="home" class="section active">
+                <div id="today-msg-container"></div>
 
-        <section id="routine" class="section">
-            <h2 class="text-2xl font-bold mb-6">📅 ক্লাস রুটিন</h2>
-            <div class="admin-controls bg-blue-50 p-4 rounded-xl mb-6">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <select id="rDay" class="p-2 border rounded-lg"><option value="Saturday">শনিবার</option><option value="Sunday">রবিবার</option><option value="Monday">সোমবার</option><option value="Tuesday">মঙ্গলবার</option><option value="Wednesday">বুধবার</option><option value="Thursday">বৃহস্পতিবার</option></select>
-                    <select id="rPeriod" class="p-2 border rounded-lg"><option value="p1">১ম পিরিয়ড</option><option value="p2">২য় পিরিয়ড</option><option value="p3">৩য় পিরিয়ড</option><option value="p4">৪র্থ পিরিয়ড</option><option value="p5">৫ম পিরিয়ড</option><option value="p6">৬ষ্ঠ পিরিয়ড</option><option value="p7">৭ম পিরিয়ড</option></select>
-                    <input id="rSub" placeholder="বিষয়" class="p-2 border rounded-lg">
-                    <input id="rTeacher" placeholder="শিক্ষক" class="p-2 border rounded-lg">
-                </div>
-                <button onclick="saveRoutine()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg w-full font-bold shadow-md">রুটিন আপডেট করুন</button>
-            </div>
-            <div class="bg-white rounded-2xl shadow-xl overflow-x-auto">
-                <table class="w-full text-sm border-collapse">
-                    <thead class="bg-blue-900 text-white">
-                        <tr><th class="p-3 border">দিন</th><th>১ম</th><th>২য়</th><th>৩য়</th><th>৪র্থ</th><th>৫ম</th><th>৬ষ্ঠ</th><th>৭ম</th></tr>
-                    </thead>
-                    <tbody id="routineBody" class="text-center"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="syllabus" class="section">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-blue-900">📚 বিস্তারিত সিলেবাস</h2>
-            </div>
-            <div class="admin-controls bg-white p-6 rounded-2xl shadow-lg border-t-4 border-indigo-600 mb-8">
-                <input id="sySub" placeholder="বিষয়ের নাম" class="w-full p-3 border rounded-xl mb-4 text-lg font-bold">
-                <textarea id="syText" rows="5" placeholder="সিলেবাসের বিস্তারিত লিখুন..." class="w-full p-3 border rounded-xl mb-4"></textarea>
-                <button onclick="saveSyllabus()" class="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold">সেভ সিলেবাস</button>
-            </div>
-            <div id="syllabusList" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
-        </section>
-
-        <section id="notice" class="section">
-            <h2 class="text-2xl font-bold mb-6 text-blue-900">📢 নোটিশ বোর্ড</h2>
-            <div class="admin-controls bg-yellow-50 p-6 rounded-2xl mb-8">
-                <input id="nT" placeholder="শিরোনাম" class="w-full p-3 border rounded-xl mb-2 font-bold">
-                <textarea id="nD" placeholder="বিস্তারিত নোটিশ..." class="w-full p-3 border rounded-xl mb-2"></textarea>
-                <button onclick="addNotice()" class="bg-blue-600 text-white px-8 py-2 rounded-xl font-bold">পাবলিশ করুন</button>
-            </div>
-            <div id="noticeContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-        </section>
-
-        <section id="calendar-sec" class="section">
-            <h2 class="text-2xl font-bold mb-6 text-blue-900 font-serif">📅 স্কুল ক্যালেন্ডার</h2>
-            <div id="calendar-el"></div>
-            <div id="eventModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[100] px-4">
-                <div class="bg-white p-6 rounded-2xl w-full max-w-sm shadow-2xl">
-                    <h3 class="font-bold text-lg mb-4 border-b pb-2">নতুন ইভেন্ট যোগ করুন</h3>
-                    <input type="text" id="eventTitle" placeholder="ইভেন্টের নাম" class="w-full border p-3 rounded-xl mb-3">
-                    <input type="time" id="eventTime" class="w-full border p-3 rounded-xl mb-4">
-                    <div class="flex justify-end gap-3">
-                        <button onclick="closeModal()" class="px-5 py-2 bg-gray-100 rounded-xl font-bold">বাতিল</button>
-                        <button onclick="saveEvent()" class="px-5 py-2 bg-blue-600 text-white rounded-xl font-bold">সেভ</button>
+                <div class="mt-8 grid grid-cols-2 gap-4">
+                    <div onclick="showSection('notice')" class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-50 flex flex-col items-center">
+                        <div class="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mb-3 text-xl">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <span class="font-bold text-xs">নোটিশ</span>
+                    </div>
+                    <div onclick="showSection('routine')" class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-50 flex flex-col items-center">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-3 text-xl">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <span class="font-bold text-xs">রুটিন</span>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section id="info" class="section">
-            <h2 class="text-2xl font-bold mb-6 text-blue-900">👨‍🏫 শিক্ষক তালিকা</h2>
-            <div class="admin-controls bg-green-50 p-6 rounded-2xl mb-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <input id="tName" placeholder="নাম" class="p-3 border rounded-xl">
-                    <input id="tSubject" placeholder="বিষয়" class="p-3 border rounded-xl">
-                    <input id="tPhone" placeholder="মোবাইল" class="p-3 border rounded-xl">
+            <section id="routine" class="section">
+                <h2 class="text-xl font-bold mb-5 flex items-center"><i class="fas fa-clock mr-2 text-blue-600"></i> ক্লাস রুটিন (৭ পিরিয়ড)</h2>
+                <div class="admin-controls bg-blue-600 p-5 rounded-3xl mb-6 shadow-lg shadow-blue-100 text-white">
+                    <select id="rDay" class="w-full p-2 rounded-lg mb-2 text-blue-900 text-sm outline-none">
+                        <option value="Saturday">শনিবার</option><option value="Sunday">রবিবার</option><option value="Monday">সোমবার</option>
+                        <option value="Tuesday">মঙ্গলবার</option><option value="Wednesday">বুধবার</option><option value="Thursday">বৃহস্পতিবার</option>
+                    </select>
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <select id="rPeriod" class="p-2 rounded-lg text-blue-900 text-sm outline-none"><option value="p1">১ম</option><option value="p2">২য়</option><option value="p3">৩য়</option><option value="p4">৪র্থ</option><option value="p5">৫ম</option><option value="p6">৬ষ্ঠ</option><option value="p7">৭ম</option></select>
+                        <input id="rSub" placeholder="বিষয়" class="p-2 rounded-lg text-blue-900 text-sm outline-none">
+                    </div>
+                    <input id="rTeacher" placeholder="শিক্ষক" class="w-full p-2 rounded-lg mb-3 text-blue-900 text-sm outline-none">
+                    <button onclick="saveRoutine()" class="w-full bg-white text-blue-600 font-bold py-2 rounded-lg text-sm">Save Period</button>
                 </div>
-                <button onclick="addTeacher()" class="mt-4 bg-green-600 text-white px-8 py-2 rounded-xl font-bold">সেভ করুন</button>
-            </div>
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <table class="w-full">
-                    <thead class="bg-blue-50 text-blue-900"><tr><th class="p-4 text-left">নাম</th><th class="p-4 text-left">বিষয়</th><th class="p-4 text-left">মোবাইল</th><th class="p-4 admin-controls">অ্যাকশন</th></tr></thead>
-                    <tbody id="teacherTableBody"></tbody>
-                </table>
-            </div>
-        </section>
+                <div class="routine-card">
+                    <table class="w-full text-[10px] text-center border-collapse">
+                        <thead class="bg-gray-50 text-gray-400">
+                            <tr><th class="p-3">Day</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th></tr>
+                        </thead>
+                        <tbody id="routineBody"></tbody>
+                    </table>
+                </div>
+            </section>
 
-    </main>
+            <section id="syllabus" class="section">
+                <h2 class="text-xl font-bold mb-5 flex items-center"><i class="fas fa-book-open mr-2 text-indigo-600"></i> সিলেবাস</h2>
+                <div class="admin-controls bg-white p-5 rounded-3xl border-2 border-dashed border-indigo-100 mb-6">
+                    <input id="sySub" placeholder="বিষয়ের নাম" class="w-full p-3 bg-gray-50 rounded-xl mb-3 font-bold text-sm outline-none">
+                    <textarea id="syText" rows="4" placeholder="বিস্তারিত সিলেবাস..." class="w-full p-3 bg-gray-50 rounded-xl mb-3 text-xs outline-none"></textarea>
+                    <button onclick="saveSyllabus()" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl text-sm">Add Syllabus</button>
+                </div>
+                <div id="syllabusList" class="space-y-4"></div>
+            </section>
+
+            <section id="notice" class="section">
+                <h2 class="text-xl font-bold mb-5 flex items-center"><i class="fas fa-bell mr-2 text-red-600"></i> নোটিশ বোর্ড</h2>
+                <div class="admin-controls bg-white p-5 rounded-3xl border mb-6 shadow-sm">
+                    <input id="nT" placeholder="শিরোনাম" class="w-full p-3 bg-gray-50 rounded-xl mb-2 font-bold text-sm outline-none">
+                    <textarea id="nD" placeholder="বিস্তারিত..." class="w-full p-3 bg-gray-50 rounded-xl mb-3 text-xs outline-none"></textarea>
+                    <button onclick="addNotice()" class="w-full bg-red-500 text-white font-bold py-3 rounded-xl text-sm">Publish</button>
+                </div>
+                <div id="noticeContainer" class="space-y-4"></div>
+            </section>
+
+            <section id="calendar-sec" class="section">
+                <h2 class="text-xl font-bold mb-5">📅 ইভেন্ট ক্যালেন্ডার</h2>
+                <div id="calendar-el" class="bg-white p-3 rounded-3xl border shadow-sm text-sm"></div>
+                <div id="eventModal" class="hidden fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-6">
+                    <div class="bg-white w-full rounded-[2.5rem] p-6 shadow-2xl">
+                        <h3 class="font-bold mb-4">New Event</h3>
+                        <input type="text" id="eventTitle" placeholder="Event Name" class="w-full p-3 bg-gray-50 rounded-xl mb-2 outline-none">
+                        <input type="time" id="eventTime" class="w-full p-3 bg-gray-50 rounded-xl mb-4 outline-none">
+                        <div class="flex gap-2">
+                            <button onclick="closeModal()" class="flex-1 py-3 bg-gray-100 rounded-xl text-gray-500 font-bold">Cancel</button>
+                            <button onclick="saveEvent()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <nav class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md h-20 flex justify-around items-center border-t border-gray-100 px-2 z-50">
+            <button onclick="showSection('home', this)" class="nav-btn active flex-1 flex flex-col items-center transition-all">
+                <i class="fas fa-house-user text-xl mb-1"></i><span class="text-[9px] font-bold">হোম</span>
+            </button>
+            <button onclick="showSection('routine', this)" class="nav-btn flex-1 flex flex-col items-center text-gray-300 transition-all">
+                <i class="fas fa-calendar-day text-xl mb-1"></i><span class="text-[9px] font-bold">রুটিন</span>
+            </button>
+            <button onclick="showSection('syllabus', this)" class="nav-btn flex-1 flex flex-col items-center text-gray-300 transition-all">
+                <i class="fas fa-book text-xl mb-1"></i><span class="text-[9px] font-bold">সিলেবাস</span>
+            </button>
+            <button onclick="showSection('notice', this)" class="nav-btn flex-1 flex flex-col items-center text-gray-300 transition-all">
+                <i class="fas fa-bullhorn text-xl mb-1"></i><span class="text-[9px] font-bold">নোটিশ</span>
+            </button>
+            <button onclick="showSection('calendar-sec', this)" class="nav-btn flex-1 flex flex-col items-center text-gray-300 transition-all">
+                <i class="fas fa-star text-xl mb-1"></i><span class="text-[9px] font-bold">ইভেন্ট</span>
+            </button>
+        </nav>
+
+    </div>
 
     <script>
         let isAdmin = false;
         const ADMIN_PASSWORD = "1234";
         let calendar;
         let selectedDate;
-        const days = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"];
 
-        // Init App
+        // Welcome Screen dismiss
+        setTimeout(() => {
+            const welcome = document.getElementById('welcome-screen');
+            welcome.style.transform = 'translateY(-100%)';
+        }, 2500);
+
         document.addEventListener('DOMContentLoaded', function() {
             const calendarEl = document.getElementById('calendar-el');
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
-                headerToolbar: { left: 'prev,next', center: 'title', right: 'today' },
+                headerToolbar: { left: 'prev', center: 'title', right: 'next' },
                 events: JSON.parse(localStorage.getItem('calendarEvents')) || [],
                 dateClick: (info) => { if(isAdmin) { selectedDate = info.dateStr; document.getElementById('eventModal').classList.remove('hidden'); } },
                 eventClick: (info) => { if(isAdmin && confirm('মুছে ফেলবেন?')) { info.event.remove(); saveCalendarToLocal(); checkTodayEvents(); } }
             });
             calendar.render();
-            checkTodayEvents();
-            loadRoutine();
-            loadSyllabus();
-            loadOtherData();
-            setInterval(checkTimeNotifications, 30000);
+            checkTodayEvents(); loadRoutine(); loadSyllabus(); loadOtherData();
         });
 
-        // Toggle Section
-        function showSection(id, element) {
+        function showSection(id, btn) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            
-            // Sidebar Active UI
-            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-            if(element) element.classList.add('active');
-
-            // Mobile Icon UI
-            document.querySelectorAll('.mobile-nav button').forEach(b => b.classList.replace('text-blue-900', 'text-gray-500'));
-            const mobileBtn = Array.from(document.querySelectorAll('.mobile-nav button')).find(b => b.innerText.includes(id === 'event-feed' ? 'হোম' : ''));
-            // (Simpler mobile active logic omitted for brevity, but functional)
-
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-blue-600', 'text-gray-300'));
+            if(btn) btn.classList.add('active');
             if(id === 'calendar-sec') setTimeout(() => calendar.render(), 100);
         }
 
-        // Admin Auth
         function toggleAdminMode() {
             if(!isAdmin) {
-                if(prompt("Admin Password:") === ADMIN_PASSWORD) {
-                    isAdmin = true;
-                    applyAdminMode();
-                } else { alert("Wrong Password!"); }
-            } else { isAdmin = false; applyAdminMode(); }
+                if(prompt("Admin Password:") === ADMIN_PASSWORD) { isAdmin = true; applyAdmin(); }
+                else { alert("ভুল পাসওয়ার্ড!"); }
+            } else { isAdmin = false; applyAdmin(); }
         }
 
-        function applyAdminMode() {
+        function applyAdmin() {
             document.querySelectorAll('.admin-controls').forEach(el => el.style.display = isAdmin ? 'block' : 'none');
-            document.getElementById('adminBtn').innerText = isAdmin ? "Logout Admin" : "Admin Login";
-            document.getElementById('adminBtn').classList.replace(isAdmin ? 'bg-red-500' : 'bg-gray-700', isAdmin ? 'bg-gray-700' : 'bg-red-500');
+            document.getElementById('adminBtn').classList.toggle('text-blue-600', isAdmin);
             loadSyllabus(); loadOtherData();
         }
 
         function closeModal() { document.getElementById('eventModal').classList.add('hidden'); }
 
-        // --- Routine ---
+        // --- Core Functions ---
+        function checkTodayEvents() {
+            const today = new Date().toLocaleDateString('en-CA'), events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
+            const container = document.getElementById('today-msg-container');
+            const todayEvents = events.filter(e => e.start.startsWith(today));
+            
+            if(todayEvents.length > 0) {
+                container.innerHTML = todayEvents.map(e => `
+                    <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden mb-6">
+                        <div class="relative z-10">
+                            <span class="text-[9px] bg-white/20 px-3 py-1 rounded-full font-bold uppercase tracking-widest">Today's Event</span>
+                            <h3 class="text-2xl font-bold mt-3">${e.title}</h3>
+                        </div>
+                        <i class="fas fa-bolt absolute -right-4 -bottom-4 text-white/10 text-8xl"></i>
+                    </div>`).join('');
+            } else {
+                container.innerHTML = `
+                    <div class="bg-blue-50 p-8 rounded-[2.5rem] flex flex-col items-center justify-center text-center border border-blue-100">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-400 rounded-full flex items-center justify-center mb-3"><i class="fas fa-smile"></i></div>
+                        <p class="text-blue-900 font-bold text-sm">আজ কোনো বিশেষ ইভেন্ট নেই।</p>
+                    </div>`;
+            }
+        }
+
         function saveRoutine() {
-            const day = document.getElementById('rDay').value;
-            const period = document.getElementById('rPeriod').value;
-            const sub = document.getElementById('rSub').value;
-            const teacher = document.getElementById('rTeacher').value;
+            const day = document.getElementById('rDay').value, period = document.getElementById('rPeriod').value;
+            const sub = document.getElementById('rSub').value, teacher = document.getElementById('rTeacher').value;
             if(!sub) return;
-            let routine = JSON.parse(localStorage.getItem('schoolRoutineSok')) || {};
+            let routine = JSON.parse(localStorage.getItem('schoolRoutineMobile')) || {};
             if(!routine[day]) routine[day] = {};
             routine[day][period] = { sub, teacher };
-            localStorage.setItem('schoolRoutineSok', JSON.stringify(routine));
+            localStorage.setItem('schoolRoutineMobile', JSON.stringify(routine));
             loadRoutine();
         }
 
         function loadRoutine() {
-            const routine = JSON.parse(localStorage.getItem('schoolRoutineSok')) || {};
-            const tbody = document.getElementById('routineBody');
-            tbody.innerHTML = days.map(day => {
-                const dayData = routine[day] || {};
-                return `<tr class="border-b"><td class="p-3 font-bold bg-blue-50">${dayTrans(day)}</td>${[1,2,3,4,5,6,7].map(p => {
-                    const pd = dayData['p'+p] || { sub: '-', teacher: '' };
-                    return `<td class="p-2 border"><b>${pd.sub}</b><br><small class="text-gray-400">${pd.teacher}</small></td>`;
+            const routine = JSON.parse(localStorage.getItem('schoolRoutineMobile')) || {};
+            const daysArr = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"];
+            document.getElementById('routineBody').innerHTML = daysArr.map(day => {
+                const dData = routine[day] || {};
+                return `<tr class="border-b"><td class="p-3 bg-gray-50 font-bold text-blue-600 border-r">${day.substring(0,3)}</td>${[1,2,3,4,5,6,7].map(p => {
+                    const pd = dData['p'+p] || { sub: '-', teacher: '' };
+                    return `<td class="p-2 border-r text-gray-700 font-semibold">${pd.sub}</td>`;
                 }).join('')}</tr>`;
             }).join('');
         }
-        function dayTrans(d) { return {"Saturday":"শনি","Sunday":"রবি","Monday":"সোম","Tuesday":"মঙ্গল","Wednesday":"বুধ","Thursday":"বৃহ"}[d]; }
 
-        // --- Syllabus ---
         function saveSyllabus() {
-            const subject = document.getElementById('sySub').value;
-            const text = document.getElementById('syText').value;
+            const subject = document.getElementById('sySub').value, text = document.getElementById('syText').value;
             if(!subject || !text) return;
             let syllabuses = JSON.parse(localStorage.getItem('detailedSyllabus')) || [];
             syllabuses.push({ subject, text });
@@ -262,27 +294,22 @@
         function loadSyllabus() {
             const syllabuses = JSON.parse(localStorage.getItem('detailedSyllabus')) || [];
             document.getElementById('syllabusList').innerHTML = syllabuses.map((s, i) => `
-                <div class="bg-white rounded-2xl shadow-lg border-t-8 border-indigo-600 overflow-hidden">
-                    <div class="bg-indigo-50 p-4 flex justify-between items-center">
-                        <h4 class="font-bold text-indigo-900 text-lg">${s.subject}</h4>
-                        <button onclick="deleteSyllabus(${i})" class="admin-controls text-red-500" style="display:${isAdmin?'block':'none'}"><i class="fas fa-trash"></i></button>
+                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-indigo-50 p-5 flex justify-between items-center border-b border-indigo-50">
+                        <h4 class="font-bold text-indigo-900">${s.subject}</h4>
+                        <button onclick="deleteSyllabus(${i})" class="admin-controls text-red-300" style="display:${isAdmin?'block':'none'}"><i class="fas fa-trash-alt"></i></button>
                     </div>
-                    <div class="p-6 whitespace-pre-wrap text-gray-600 font-medium">${s.text}</div>
-                </div>
-            `).join('');
+                    <div class="p-6 text-gray-500 text-xs whitespace-pre-wrap leading-relaxed">${s.text}</div>
+                </div>`).join('');
         }
 
-        function deleteSyllabus(index) {
-            let s = JSON.parse(localStorage.getItem('detailedSyllabus'));
-            s.splice(index, 1);
-            localStorage.setItem('detailedSyllabus', JSON.stringify(s));
-            loadSyllabus();
+        function deleteSyllabus(i) {
+            let s = JSON.parse(localStorage.getItem('detailedSyllabus')); s.splice(i, 1);
+            localStorage.setItem('detailedSyllabus', JSON.stringify(s)); loadSyllabus();
         }
 
-        // --- Notices & Teachers ---
         function addNotice() {
-            const title = document.getElementById('nT').value;
-            const desc = document.getElementById('nD').value;
+            const title = document.getElementById('nT').value, desc = document.getElementById('nD').value;
             if(!title) return;
             let n = JSON.parse(localStorage.getItem('notices')) || [];
             n.push({title, desc});
@@ -290,69 +317,29 @@
             loadOtherData();
         }
 
-        function addTeacher() {
-            const name = document.getElementById('tName').value;
-            const sub = document.getElementById('tSubject').value;
-            const phone = document.getElementById('tPhone').value;
-            if(!name) return;
-            let t = JSON.parse(localStorage.getItem('teachers')) || [];
-            t.push({name, sub, phone});
-            localStorage.setItem('teachers', JSON.stringify(t));
-            loadOtherData();
-        }
-
-        function deleteItem(key, index) {
-            let data = JSON.parse(localStorage.getItem(key));
-            data.splice(index, 1);
-            localStorage.setItem(key, JSON.stringify(data));
-            loadOtherData();
-        }
-
         function loadOtherData() {
             const notices = JSON.parse(localStorage.getItem('notices')) || [];
             document.getElementById('noticeContainer').innerHTML = notices.map((n, i) => `
-                <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 border-blue-500 flex justify-between">
-                    <div><h3 class="font-bold text-blue-900">${n.title}</h3><p class="text-gray-500 text-sm mt-1">${n.desc}</p></div>
-                    <button onclick="deleteItem('notices', ${i})" class="admin-controls text-red-400" style="display:${isAdmin?'block':'none'}"><i class="fas fa-trash"></i></button>
+                <div class="bg-white p-5 rounded-[2rem] shadow-sm border-l-4 border-red-500 flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-800 text-sm mb-1">${n.title}</h3>
+                        <p class="text-[10px] text-gray-500">${n.desc}</p>
+                    </div>
+                    <button onclick="deleteItem('notices', ${i})" class="admin-controls ml-4 text-red-200" style="display:${isAdmin?'block':'none'}"><i class="fas fa-times"></i></button>
                 </div>`).join('');
-
-            const teachers = JSON.parse(localStorage.getItem('teachers')) || [];
-            document.getElementById('teacherTableBody').innerHTML = teachers.map((t, i) => `
-                <tr class="border-b"><td class="p-4 font-bold">${t.name}</td><td class="p-4">${t.sub}</td><td class="p-4"><a href="tel:${t.phone}" class="text-blue-600 font-bold">${t.phone}</a></td><td class="p-4 admin-controls" style="display:${isAdmin?'table-cell':'none'}"><button onclick="deleteItem('teachers', ${i})" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`).join('');
         }
 
-        function checkTodayEvents() {
-            const today = new Date().toLocaleDateString('en-CA');
-            const events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
-            const container = document.getElementById('today-msg-container');
-            const todayEvents = events.filter(e => e.start.startsWith(today));
-            if(todayEvents.length > 0) {
-                container.innerHTML = todayEvents.map(e => `
-                    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden">
-                        <i class="fas fa-star absolute right-[-10px] top-[-10px] text-white/10 text-9xl"></i>
-                        <h3 class="text-lg font-bold opacity-80 uppercase tracking-widest">আজকের ঘোষণা</h3>
-                        <p class="text-3xl md:text-5xl font-black mt-4">${e.title}</p>
-                    </div>`).join('');
-            } else { 
-                container.innerHTML = '<div class="bg-white p-12 rounded-3xl text-gray-300 italic text-center border-2 border-dashed border-gray-100 font-bold">আজ কোনো বিশেষ ইভেন্ট নেই।</div>'; 
-            }
+        function deleteItem(key, i) {
+            let d = JSON.parse(localStorage.getItem(key)); d.splice(i, 1);
+            localStorage.setItem(key, JSON.stringify(d)); loadOtherData();
         }
 
         function saveEvent() {
-            const title = document.getElementById('eventTitle').value;
-            const time = document.getElementById('eventTime').value;
+            const title = document.getElementById('eventTitle').value, time = document.getElementById('eventTime').value;
             if(title) { calendar.addEvent({ title, start: selectedDate + (time ? 'T'+time : ''), allDay: !time }); saveCalendarToLocal(); closeModal(); checkTodayEvents(); }
         }
 
         function saveCalendarToLocal() { const events = calendar.getEvents().map(e => ({ title: e.title, start: e.startStr, allDay: e.allDay })); localStorage.setItem('calendarEvents', JSON.stringify(events)); }
-
-        function checkTimeNotifications() {
-            const now = new Date();
-            const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-            const today = now.toLocaleDateString('en-CA');
-            const events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
-            events.forEach(e => { if(e.start === today + 'T' + currentTime) { alert("🔔 রিমাইন্ডার: " + e.title); } });
-        }
     </script>
 </body>
 </html>
